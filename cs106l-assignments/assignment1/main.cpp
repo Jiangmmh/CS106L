@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <format>
 
 const std::string COURSES_OFFERED_PATH = "student_output/courses_offered.csv";
 const std::string COURSES_NOT_OFFERED_PATH = "student_output/courses_not_offered.csv";
@@ -25,9 +26,9 @@ const std::string COURSES_NOT_OFFERED_PATH = "student_output/courses_not_offered
  * Hint: Remember what types C++ streams work with?!
  */
 struct Course {
-  /* STUDENT TODO */ title;
-  /* STUDENT TODO */ number_of_units;
-  /* STUDENT TODO */ quarter;
+  std::string title;
+  std::string number_of_units;
+  std::string quarter;
 };
 
 /**
@@ -58,8 +59,32 @@ struct Course {
  * @param filename The name of the file to parse.
  * @param courses  A vector of courses to populate.
  */
-void parse_csv(std::string filename, std::vector<Course> courses) {
-  /* (STUDENT TODO) Your code goes here... */
+// 修改了参数 courses 的类型，从值传递改为引用传递
+void parse_csv(std::string filename, std::vector<Course>& courses) {
+  std::ifstream file(filename, std::ios::in);
+  if (!file.is_open()) {
+    std::cerr << "Error opening file: " << filename << std::endl;
+    return;
+  }
+
+  std::string line;
+  // Skip the header line
+  std::getline(file, line); 
+
+  while (std::getline(file, line)) {
+    std::vector<std::string> tokens = split(line, ',');
+    if (tokens.size() != 3) {
+      std::cerr << "Invalid line format: " << line << std::endl;
+      continue;
+    }
+
+    Course course;
+    course.title = tokens[0];
+    course.number_of_units = tokens[1];
+    course.quarter = tokens[2];
+
+    courses.push_back(course);
+  }
 }
 
 /**
@@ -80,8 +105,31 @@ void parse_csv(std::string filename, std::vector<Course> courses) {
  * @param all_courses A vector of all courses gotten by calling `parse_csv`.
  *                    This vector will be modified by removing all offered courses.
  */
-void write_courses_offered(std::vector<Course> all_courses) {
-  /* (STUDENT TODO) Your code goes here... */
+void write_courses_offered(std::vector<Course>& all_courses) {
+  std::ofstream file(COURSES_OFFERED_PATH, std::ios::out);
+  if (!file.is_open()) {
+    std::cerr << "Error opening file: " << COURSES_OFFERED_PATH << std::endl;
+    return;
+  }
+
+  // Write CSV header
+  file << "Title,Number of Units,Quarter\n";
+
+  std::vector<Course> offered_courses;
+
+  for (const Course& course : all_courses) {
+    if (course.quarter != "null") {
+      file << std::format("{},{},{}\n", course.title, course.number_of_units, course.quarter);
+      offered_courses.push_back(course);
+    }
+  }
+
+  file.close();
+
+  // 不能在遍历时直接删除元素，不然会导致迭代器失效
+  for (const Course& course : offered_courses) {
+    delete_elem_from_vector(all_courses, course);
+  }
 }
 
 /**
@@ -97,8 +145,19 @@ void write_courses_offered(std::vector<Course> all_courses) {
  *
  * @param unlisted_courses A vector of courses that are not offered.
  */
-void write_courses_not_offered(std::vector<Course> unlisted_courses) {
-  /* (STUDENT TODO) Your code goes here... */
+void write_courses_not_offered(std::vector<Course>& unlisted_courses) {
+  std::ofstream file(COURSES_NOT_OFFERED_PATH, std::ios::out);
+  if (!file.is_open()) {
+    std::cerr << "Error opening file: " << COURSES_NOT_OFFERED_PATH << std::endl;
+    return;
+  }
+
+  // Write CSV header
+  file << "Title,Number of Units,Quarter\n";
+
+  for (const Course& course : unlisted_courses) {
+    file << std::format("{},{},{}\n", course.title, course.number_of_units, course.quarter);
+  }
 }
 
 int main() {
