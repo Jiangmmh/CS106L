@@ -30,7 +30,7 @@ run_autograder()
 
   std::string python;
   for (const auto& option :
-       { "python", "python3", "/usr/bin/python3", "/usr/bin/python" }) {
+       { "python3", "python3", "/usr/bin/python3", "/usr/bin/python" }) {
     if (run_program(option, { "--version" }, true) == 0) {
       python = option;
       break;
