@@ -3,9 +3,9 @@
 #include <set>
 #include <string>
 #include <unordered_set>
+#include <iterator>
 
 struct Token {
-
   std::string content;
   size_t src_offset;
 
@@ -23,6 +23,9 @@ private:
 struct Misspelling {
   Token token;
   std::set<std::string> suggestions;
+public:
+  
+  Misspelling(const Token& token) : token(token) {}
 };
 
 using Corpus = std::set<Token>;
@@ -32,7 +35,6 @@ Corpus tokenize(std::string& input);
 std::set<Misspelling> spellcheck(const Corpus& source, const Dictionary& dictionary);
 
 /* Helper methods */
-
 size_t levenshtein(const std::string&, const std::string&);
 bool operator<(const Token&, const Token&);
 bool operator<(const Misspelling&, const Misspelling&);
