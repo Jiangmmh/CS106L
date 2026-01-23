@@ -1,60 +1,22 @@
-/*
- * CS106L Assignment 6: Explore Courses
- * Created by Haven Whitney with modifications by Jacob Roberts-Baca and Fabio
- * Ibanez.
- */
 
-#include <algorithm>
-#include <type_traits>
-#include <vector>
+
+实验指导：https://github.com/cs106l/cs106l-assignments/blob/main/assignment6/README.md
+
+## Part 0: Include `<optional>`
+
+包含头文件`<optional>`：
+
+```c++
 #include <optional>
+```
 
-/** STUDENT_TODO: You will need to include a relevant header file here! */
+## Part 1: Write the `find_course` function
 
-#include "autograder/utils.hpp"
+实现`find_course`函数，用于从courses中找到目标课程，需要使用`std::optinal`：
 
-/**
- * A course. This should be familiar from Assignment 1!
- */
-struct Course
+```c++
+std::optional<FillMeIn> find_course(std::string course_title)
 {
-  std::string title;
-  std::string number_of_units;
-  std::string quarter;
-
-  /**
-   * You don't have to ignore this anymore! We're defining the `==` operator for
-   * the Course struct.
-   */
-  bool operator==(const Course& other) const
-  {
-    return title == other.title && number_of_units == other.number_of_units &&
-           quarter == other.quarter;
-  }
-};
-
-class CourseDatabase
-{
-public:
-  CourseDatabase(std::string filename)
-  {
-    auto lines = read_lines(filename);
-    std::transform(lines.begin(),
-                   lines.end(),
-                   std::back_inserter(courses),
-                   [](std::string line) {
-                     auto parts = split(line, ',');
-                     return Course{ parts[0], parts[1], parts[2] };
-                   });
-  }
-
-  /**
-   * Finds a course in the database with the given title, if it exists.
-   * @param course_title The title of the course to find.
-   * @return You will need to figure this out!
-   */
-  std::optional<FillMeIn> find_course(std::string course_title)
-  {
     /* STUDENT_TODO: Implement this method! You will need to change the return
      * type. */
     for (size_t i = 0; i < courses.size(); ++i) {
@@ -64,12 +26,14 @@ public:
     }
 
     return std::nullopt;
-  }
+}
+```
 
-private:
-  std::vector<Course> courses;
-};
+## Part 2: Modifying the `main` function
 
+修改main函数，使用optional函数：
+
+```c++
 int
 main(int argc, char* argv[])
 {
@@ -105,3 +69,29 @@ main(int argc, char* argv[])
   
   return run_autograder();
 }
+```
+
+`std::optional`的方法
+
+- `.value() `：返回有效值或抛出`bad_optional_access`错误
+- `*optional`：效果和`value()`一样
+- `.value_or(valueType val)`：返回有效值或者默认值val
+- `.has_value() `：如果有效值存在返回true，否则返回false
+
+## 测试结果
+
+```shell
+~/minghan/courses/CS106L/cs106l-assignments/assignment6 % clang++ -std=c++23 main.cpp -o main
+~/minghan/courses/CS106L/cs106l-assignments/assignment6 % ./main                             
+⏳ Installing autograder packages (this may take a few minutes)...
+✅ Autograder packages installed.
+
+Running test: Present Courses... 🧪                                              
+✅ Present Courses passed! 🚀 
+
+Running test: Missing Courses... 🧪                                              
+✅ Missing Courses passed! 🚀 
+
+🚀🚀🚀 Congratulations, your code passed all the autograder tests! 🚀🚀🚀        
+```
+
