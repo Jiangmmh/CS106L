@@ -63,3 +63,94 @@ void User::set_friend(size_t index, const std::string& name)
  * STUDENT TODO:
  * The definitions for your custom operators and special member functions will go here!
  */
+
+std::ostream& operator<<(std::ostream& os, const User& user)
+{
+  os << "User(name=" << user._name << ", friends=[";
+  for (size_t i = 0; i < user._size; ++i) {
+    os << user._friends[i];
+    if (i < user._size - 1) {
+      os << ", ";
+    }
+  }
+  os << "])";
+  return os;
+}
+
+User::~User()
+{
+  if (_friends != nullptr)
+    delete[] _friends;
+}
+
+User::User(const User& other)
+{
+  _name = other._name;
+  _size = other._size;
+  _capacity = other._capacity;
+  _friends = new std::string[_capacity];
+  for (size_t i = 0; i < _size; ++i) {
+    _friends[i] = other._friends[i];
+  }
+}
+
+User& User::operator=(const User& other)
+{
+  if (this != &other) {
+    delete[] _friends;
+
+    _name = other._name;
+    _size = other._size;
+    _capacity = other._capacity;
+    _friends = new std::string[_capacity];
+    for (size_t i = 0; i < _size; ++i) {
+      _friends[i] = other._friends[i];
+    }
+  }
+  return *this;
+}
+
+
+User& User::operator+=(User&other)
+{
+  // 避免自我添加
+  if (this == &other) {
+    return *this; 
+  }
+
+  // 如果_friends容量不足，则先扩容
+  if (_size == _capacity) {
+    _capacity = 2 * _capacity + 1;
+    std::string* newFriends = new std::string[_capacity];
+    for (size_t i = 0; i < _size; ++i) {
+      newFriends[i] = _friends[i];
+    }
+    delete[] _friends;
+    _friends = newFriends;
+  }
+
+  // 添加other为this的朋友
+  _friends[_size++] = other._name;
+
+  if (other._size == other._capacity) {
+    // 扩容other的_friends
+    size_t newCapacity = 2 * other._capacity + 1;
+    std::string* newFriends = new std::string[newCapacity];
+    for (size_t i = 0; i < other._size; ++i) {
+      newFriends[i] = other._friends[i];
+    }
+    delete[] other._friends;
+    other._friends = newFriends;
+    other._capacity = newCapacity;
+  }
+  
+  other._friends[other._size++] = _name;
+
+  return *this;
+}
+
+
+bool User::operator<(const User& other) const
+{
+  return _name < other._name;
+}
